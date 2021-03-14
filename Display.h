@@ -19,8 +19,6 @@ class Display
 {
 private:
     SDL_Window* window;
-    SDL_Event event;
-
     SDL_Renderer* renderer;
     SDL_Texture* texture;
 
@@ -29,6 +27,7 @@ private:
     //Local screen scale variable
     int scr_scl; 
 
+    
 //------------------------- COLOR ------------------------------
 
     // Rectangle representing a scaled pixel 
@@ -37,8 +36,11 @@ private:
     xor's the new sprite to the existing ones*/
     bool screen_color[SCREEN_WIDTH][SCREEN_HEIGHT] = { {0} };
 
+    //Aux var
+    int i, j;
+
 public:
-    void closeDisplay(SDL_Window* window, SDL_Renderer* renderer, SDL_Texture* texture) {
+    void closeDisplay() {
         SDL_DestroyWindow(window);
         SDL_DestroyRenderer(renderer);
         SDL_DestroyTexture(texture);
@@ -48,7 +50,6 @@ public:
 
  //---------------------------   SETUP VARS   ---------------------------------------
        
-        bool running = 1;
         total_screen_width = 64 * SCREEN_SCALE;
         total_screen_height = 32 * SCREEN_SCALE;
         scr_scl = SCREEN_SCALE;
@@ -91,30 +92,6 @@ public:
         );
         
        // drawPixel(64, 32, 1);
-
-//------------------------ DISPLAY LOOP ------------------------------------
-
-        while (running) {
-            //SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
-            //SDL_RenderClear(renderer);
-
-            
-
-            //Poll for events
-            while (SDL_PollEvent(&event)) {
-
-                switch (event.type) {
-                case SDL_QUIT:
-                    running = 0;
-                    break;
-                default:
-                    break;
-                }
-
-            }
-        }
-
-        SDL_Quit();
         return 0;
     }
 
@@ -149,17 +126,23 @@ public:
         return 1;
     }
     void drawSprite(uint8_t * RAM, uint8_t nb, uint16_t I, int x, int y) {
-        uint8_t temp;
-        for (int i=0; i <(int)nb;i++)
-            for (int j=0;j<8;j++){
-                temp = RAM[i+I];
-                temp = temp >> 1;
-                temp = temp && 1;
-                if (temp) drawPixel(x + j, y + i, 1);
-                else drawPixel(x + j, y + i, 1);
-            }
-                
+        /*Declare aux bytes ram_cpy to store the
+        current byte in the loop and lsb (least 
+        significant bit) to store the pixel to be 
+        drawn.*/
+        uint8_t ram_cpy,lsb;
 
+        for (i=0; i <(int)nb;i++){
+            ram_cpy = RAM[i+I];
+            for (j = 0; j < 8; j++) {
+                lsb = ram_cpy & 1;
+                if (lsb) drawPixel(x + 7 - j, y + i, 1);
+                else drawPixel(x + 7 - j, y + i, 0);
+                ram_cpy = ram_cpy >> 1;
+                cout << (int)lsb << " - " << endl;
+            }
+        }
+             
     }
 
 

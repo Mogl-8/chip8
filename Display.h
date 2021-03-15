@@ -56,9 +56,7 @@ public:
         rpixel.w = rpixel.h = scr_scl;
 
 //---------------------------- Initialize SDL2 --------------------------------------
-        
-        //SDL_Init(SDL_INIT_VIDEO); goes to main             
-
+       
         // Create an application window with the following settings:
         window = SDL_CreateWindow(
             "CHIP-8 BY ZACILE",                     // window title
@@ -95,26 +93,35 @@ public:
         return 0;
     }
 
-    int drawPixel(int rx, int ry, bool bw) { //dray pixel in a relative (x,y) position
+    int drawPixel(int rx, int ry, bool bw, uint8_t* vf) { //dray pixel in a relative (x,y) position
 
         // Clear winow
         //SDL_RenderClear(renderer);
 
-        if (rx > SCREEN_WIDTH-1) rx = 0;
-        else if (rx < 0) rx = SCREEN_WIDTH-1;
+        if (rx > SCREEN_WIDTH - 1) rx = rx - SCREEN_WIDTH;
+        else if (rx < 0) rx = SCREEN_WIDTH + rx;
         
-        if (ry > SCREEN_HEIGHT-1) ry = 0;
-        else if (ry < 0) ry = SCREEN_HEIGHT - 1;
+
+        if (ry > SCREEN_HEIGHT - 1) ry = ry - SCREEN_HEIGHT;
+        else if (ry < 0) ry = SCREEN_HEIGHT + ry;
 
         rpixel.x = rx*scr_scl;
         rpixel.y = ry*scr_scl;
+
+
         
         switch (bw ^ screen_color[rx][ry]) {
-        case 1:SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        case 1: SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+                screen_color[rx][ry] = 1;
             break;
-        case 0:SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+        case 0: SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+            if (screen_color[rx][ry] & bw) *vf = 1;
+            screen_color[rx][ry] = 0;
+            //verify collition
+            
             break;
         default: cout <<"yo wtf you're boolean :v";
+
         }
         
         // Render rect
@@ -125,7 +132,9 @@ public:
 
         return 1;
     }
-    void drawSprite(uint8_t * RAM, uint8_t nb, uint16_t I, int x, int y) {
+
+
+    void drawSprite(uint8_t * RAM, uint8_t nb, uint16_t I,  int x, int y, uint8_t * vf) {//uint8_t* v,
         /*Declare aux bytes ram_cpy to store the
         current byte in the loop and lsb (least 
         significant bit) to store the pixel to be 
@@ -136,10 +145,10 @@ public:
             ram_cpy = RAM[i+I];
             for (j = 0; j < 8; j++) {
                 lsb = ram_cpy & 1;
-                if (lsb) drawPixel(x + 7 - j, y + i, 1);
-                else drawPixel(x + 7 - j, y + i, 0);
+                if (lsb) drawPixel(x + 7 - j, y + i, 1,vf);
+                else drawPixel(x + 7 - j, y + i, 0,vf);
                 ram_cpy = ram_cpy >> 1;
-                cout << (int)lsb << " - " << endl;
+                //cout << (int)lsb << " - " << endl; //check printed bit val
             }
         }
              

@@ -23,7 +23,13 @@ private:
     uint16_t PC;   
 
     //8 bit stack pinter pseudo register
-    uint8_t SP;    
+    uint8_t SP;
+
+    //Delay timer
+    uint8_t DT;
+
+    //Sound timer register
+    uint8_t ST;
 
     /*The stack is an array of 16 16 - bit values,
     used to store the address that the interpreter
@@ -32,7 +38,6 @@ private:
 
 public:
     //test method
-
     void init(){
         const static uint8_t def_sprites[] = {
             0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
@@ -53,7 +58,7 @@ public:
             0xF0, 0x80, 0xF0, 0x80, 0x80  // F
         };
 
-        memcpy(MEM, def_sprites, 80);
+        memcpy(MEM, def_sprites, TOTAL_SPRITES_BYTES);
 
     }
     uint8_t* get_RAM() {

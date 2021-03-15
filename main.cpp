@@ -13,16 +13,19 @@ int main(int argc, char* argv[]) {
     bool running = 1;
 
     cpu.init();
-    
+
     display.createDisplay(SCREEN_SCALE);
-    display.drawSprite(cpu.get_RAM(), 5, 5*3, 0, 0);
+    cpu.getRegisters()[0xF] = 0;
+    cout << (int)cpu.getRegisters()[0xF] << endl;
+    display.drawSprite(cpu.get_RAM(), 5, 5 * 3, 0, 0, &cpu.getRegisters()[0xF]);
+    display.drawSprite(cpu.get_RAM(), 5, 5 * 3, 15, 0, &cpu.getRegisters()[0xF]);
+    cout << (int)cpu.getRegisters()[0xF] << endl;
+
     while (running) {
         //SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
         //SDL_RenderClear(renderer);
 
-        
         //display.drawPixel(64, 32, 1);
-        
 
         //Poll for events
         while (SDL_PollEvent(&event)) {
@@ -39,8 +42,8 @@ int main(int argc, char* argv[]) {
 
         }
     }
-    
-    
+
+
 
     return 0;
 }
